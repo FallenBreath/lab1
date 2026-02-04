@@ -1,6 +1,16 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-# request — это "письмо" от браузера с данными о пользователе
-
+# HttpResponse нам больше не нужен, render делает это за нас
 def home(request):
-    return HttpResponse("<h1>Добро пожаловать в 3D Хранилище</h1><p>Система работает.</p>")
+    # 1. Готовим данные (Context). Это словарь Python.
+    # Имитация данных из базы (список словарей)
+    fake_database = [
+    {'id': 1, 'name': 'Sci-Fi Helmet', 'file_size': '15 MB'},
+    {'id': 2, 'name': 'Old Chair', 'file_size': '2 MB'},
+    {'id': 3, 'name': 'Cyber Truck', 'file_size': '10 MB'},
+    {'id': 4, 'name': 'green labubu', 'file_size': '12 MB'},
+    ]
+    context_data = {
+    'page_title': 'Главная Галерея',
+    'assets': fake_database, # Передаем весь список
+    }
+    return render(request, 'gallery/index.html', context_data)
