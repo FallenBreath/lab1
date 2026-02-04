@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О проекте</title>
+</head>
+<body>
+    <header>
+        <h1>{{ page_title }}</h1>
+        <nav>
+            <a href="/">На главную</a>
+        </nav>
+    </header>
+    
+    <main>
+        <h2>Информация о проекте</h2>
+        
+        <p><strong>Автор:</strong> {{ author_name }}</p>
+        <p><strong>Курс:</strong> {{ course_name }}</p>
+        <p><strong>Описание:</strong></p>
+        <p>{{ project_description }}</p>
+        
+        <h3>Технологии проекта:</h3>
+        <ul>
+            {% for tech in technologies %}
+                <li>{{ tech }}</li>
+            {% empty %}
+                <li>Технологии не указаны</li>
+            {% endfor %}
+        </ul>
+    </main>
+    
+    <footer>
+        <p>&copy; {{ current_year }} Web Structures Course</p>
+    </footer>
+</body>
+</html>
