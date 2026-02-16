@@ -1,44 +1,97 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="ru">
-    <head>
-        <meta charset="UTF-8">
-        <title>3D Storage</title>
-    </head>
-<body>
-        <header>
-            <!-- {{ ... }} — это переменная. Мы передадим её из Python -->
-             <h1>{{ page_title }}</h1>
-                <nav>
-                    <a href="/">Главная</a> | 
-                    <a href="/about/">О проекте</a>
-                </nav>
-        </header>
+<head>
+    <meta charset="UTF-8">
+    <title>3D Storage</title>
+    <!-- ... ваши старые теги ... -->
+    <!-- ВАЖНО: Это карта, указывающая браузеру, где брать библиотеки -->
+    <script type="importmap">
+    {
+        "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <!-- Подключение CSS (оставьте как было) -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'gallery/style.css' %}">
+</head>
 
+<body>
+    <header>
+        <h1>{{ page_title }}</h1>
+        <p>
+            <a href="/">Главная</a> | 
+            <a href="/about/">О проекте</a> | 
+            <a href="/upload/">Загрузить модель</a>
+        </p>
+    </header>
 
     <main>
         <h2>Доступные ассеты:</h2>
-        <!-- Цикл for в шаблоне Django -->
-        <ul>
-        {% for asset in assets %}
-            <!-- Внутри цикла for -->
-                <li>
-                    <strong>{{ asset.title }}</strong>
-                    <!-- asset.file.url — это ссылка на файл (/media/3d_assets/...) -->
-                    <!-- asset.file.size — размер в байтах. filter 'filesizeformat' делает его читаемым
-                    (MB/KB) -->
-                    <small>(Размер: {{ asset.file.size|filesizeformat }})</small>
+       
+        <div class="gallery-grid"> 
+            {% for asset in assets %}
+            <div class="asset-card">
+                <!-- Блок для превью — ИСПРАВЛЕНО! -->
+                <div class="card-preview" 
+                id="model-container-{{ asset.id }}" 
+                data-url="{{ asset.file.url }}">
+                 <!-- Содержимое блока (если нужно) -->
+                </div>
+                
+                <div class="card-info">
+                    <h3 class="card-title">{{ asset.title }}</h3>
                     
-                    <a href="{{ asset.file.url }}" download>[Скачать файл]</a>
-                </li>
-        {% empty %}
-            <!-- Этот блок сработает, если список assets пустой -->
-            <li>Нет доступных моделей.</li>
+                    <div class="card-meta">
+                        <p><strong>Размер:</strong> 
+                            {% if asset.file %}
+                                {{ asset.file.size|filesizeformat }}
+                            {% else %}
+                                Не указан
+                            {% endif %}
+                        </p>
+                        <p><strong>Загружено:</strong> {{ asset.created_at|date:"d.m.Y H:i" }}</p>
+                    </div>
+                    
+                    {% if asset.file %}
+                        <a href="{{ asset.file.url }}" class="btn" download>📥 Скачать</a>
+                    {% else %}
+                        <span style="color: #999;">Файл не загружен</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                Нет доступных моделей. Будьте первым, кто загрузит 3D-модель!
+            </p>
             {% endfor %}
-        </ul>
+        </div>
     </main>
 
-        <footer>
-            <p>&copy; 2024 Web Structures Course</p>
-        </footer>
+    <footer>
+        <p>&copy; 2024 Web Structures Course</p>
+    </footer>
+    <!-- index.html (внизу) -->
+<!-- type="module" включает режим современных импортов -->
+<script type="module">
+    // Импортируем нашу функцию.
+    // Обратите внимание: путь к JS через static
+    import { mountSimpleCube } from "{% static 'gallery/js/viewer.js' %}";
+    // Находим все контейнеры карточек
+    
+    const containers = document.querySelectorAll('.card-preview');
+    if (containers.length > 0) {
+        // Берем только первый контейнер для теста
+        const firstContainer = containers[0];
+        // Получаем его ID (мы задали его на прошлой неделе: model-container-{{ asset.id }})
+        const containerId = firstContainer.id;
+        // Запускаем магию
+        mountSimpleCube(containerId);
+    }
+</script>
 </body>
-</html> 
+</html>
